@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flor abrindo - morgs</title>
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#1b2a4a;
+      --stem:#2ecc71;
+      --petal1:#ff4d8d;
+      --petal2:#ff2e63;
+      --center:#ffd166;
+      --shadow: rgba(0,0,0,.35);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background: radial-gradient(1200px 800px at 50% 25%, #2f4c7a 0%, var(--bg2) 45%, var(--bg1) 100%);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow:hidden;
+      color:#fff;
+    }
+
+    .scene{
+      position:relative;
+      width:min(420px, 92vw);
+      height:min(520px, 92vh);
+      display:grid;
+      place-items:end center;
+      padding-bottom:22px;
+      user-select:none;
+    }
+
+    /* base/ground */
+    .ground{
+      position:absolute;
+      bottom:0;
+      width:100%;
+      height:26px;
+      background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.02), rgba(255,255,255,.06));
+      border-radius:999px;
+      filter: blur(.2px);
+      opacity:.6;
+    }
+
+    /* stem */
+    .stem{
+      position:absolute;
+      bottom:18px;
+      width:18px;
+      height:290px;
+      border-radius:999px;
+      background: linear-gradient(180deg, #3bf28d 0%, var(--stem) 40%, #1c9c54 100%);
+      box-shadow: 0 18px 30px var(--shadow);
+    }
+
+    .leaf{
+      position:absolute;
+      width:140px;
+      height:80px;
+      background: radial-gradient(circle at 30% 40%, #7cffb2 0%, #2ecc71 55%, #179a52 100%);
+      border-radius: 80% 20% 70% 30% / 60% 40% 60% 40%;
+      filter: drop-shadow(0 10px 14px var(--shadow));
+      opacity:.95;
+    }
+    .leaf.left{
+      bottom:150px;
+      left:calc(50% - 155px);
+      transform: rotate(-18deg);
+    }
+    .leaf.right{
+      bottom:110px;
+      left:calc(50% + 15px);
+      transform: rotate(18deg) scaleX(-1);
+    }
+
+    /* flower head container */
+    .flower{
+      position:absolute;
+      bottom: 285px;
+      left:50%;
+      transform: translateX(-50%);
+      width:240px;
+      height:240px;
+    }
+
+    /* center / message */
+    .center{
+      position:absolute;
+      inset:0;
+      margin:auto;
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      background: radial-gradient(circle at 35% 35%, #fff3b0 0%, var(--center) 35%, #f7b801 100%);
+      box-shadow: 0 18px 26px var(--shadow), inset 0 8px 14px rgba(255,255,255,.25);
+      display:grid;
+      place-items:center;
+      z-index:5;
+
+      /* starts hidden, appears as it opens */
+      transform: scale(.4);
+      opacity:0;
+      transition: transform 900ms cubic-bezier(.2,.9,.2,1), opacity 600ms ease;
+    }
+
+    .text{
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size: 22px;
+      color:#2a1a00;
+      text-shadow: 0 2px 0 rgba(255,255,255,.35);
+      transform: translateY(2px);
+    }
+
+    /* petals */
+    .petal{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:150px;
+      height:80px;
+      transform-origin: 12% 50%;
+      border-radius: 80px 120px 120px 80px;
+      background: radial-gradient(circle at 25% 40%, var(--petal1) 0%, var(--petal2) 52%, #c61f4a 100%);
+      box-shadow: 0 18px 26px var(--shadow), inset 0 10px 18px rgba(255,255,255,.18);
+      filter: saturate(1.05);
+      z-index:2;
+
+      /* closed state */
+      transform: translate(-50%, -50%) rotate(var(--angle)) rotate(0deg) scaleX(.35) scaleY(.92);
+      opacity:.95;
+      transition: transform 1100ms cubic-bezier(.2,.9,.2,1);
+    }
+
+    /* inner petals (smaller, gives depth) */
+    .petal.inner{
+      width:120px;
+      height:64px;
+      background: radial-gradient(circle at 25% 40%, #ff78ae 0%, #ff3e7c 55%, #b7183f 100%);
+      z-index:3;
+      opacity:.9;
+      transform: translate(-50%, -50%) rotate(var(--angle)) rotate(0deg) scaleX(.28) scaleY(.9);
+      transition-duration: 1200ms;
+    }
+
+    /* Open state */
+    .open .petal{
+      transform: translate(-50%, -50%) rotate(var(--angle)) rotate(22deg) scaleX(1) scaleY(1);
+    }
+    .open .petal.inner{
+      transform: translate(-50%, -50%) rotate(var(--angle)) rotate(16deg) scaleX(.92) scaleY(.92);
+    }
+    .open .center{
+      transform: scale(1);
+      opacity:1;
+    }
+
+    /* cute floating animation */
+    @keyframes floaty{
+      0%,100%{ transform: translateX(-50%) translateY(0); }
+      50%{ transform: translateX(-50%) translateY(-6px); }
+    }
+    .flower{ animation: floaty 3.6s ease-in-out infinite; }
+
+    /* button */
+    .btn{
+      position:absolute;
+      top:18px;
+      left:50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 14px 22px rgba(0,0,0,.25);
+      font-weight:700;
+      letter-spacing:.02em;
+    }
+    .btn:active{ transform: translateX(-50%) scale(.98); }
+
+    .hint{
+      position:absolute;
+      top:62px;
+      left:50%;
+      transform: translateX(-50%);
+      opacity:.75;
+      font-size:12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" id="scene">
+    <button class="btn" id="toggle">Abrir / Fechar</button>
+    <div class="hint">Clique na flor ou no botão</div>
+
+    <div class="stem"></div>
+    <div class="leaf left"></div>
+    <div class="leaf right"></div>
+
+    <div class="flower" id="flower">
+      <!-- outer petals -->
+      <div class="petal" style="--angle: 0deg;"></div>
+      <div class="petal" style="--angle: 45deg;"></div>
+      <div class="petal" style="--angle: 90deg;"></div>
+      <div class="petal" style="--angle: 135deg;"></div>
+      <div class="petal" style="--angle: 180deg;"></div>
+      <div class="petal" style="--angle: 225deg;"></div>
+      <div class="petal" style="--angle: 270deg;"></div>
+      <div class="petal" style="--angle: 315deg;"></div>
+
+      <!-- inner petals -->
+      <div class="petal inner" style="--angle: 22.5deg;"></div>
+      <div class="petal inner" style="--angle: 67.5deg;"></div>
+      <div class="petal inner" style="--angle: 112.5deg;"></div>
+      <div class="petal inner" style="--angle: 157.5deg;"></div>
+      <div class="petal inner" style="--angle: 202.5deg;"></div>
+      <div class="petal inner" style="--angle: 247.5deg;"></div>
+      <div class="petal inner" style="--angle: 292.5deg;"></div>
+      <div class="petal inner" style="--angle: 337.5deg;"></div>
+
+      <div class="center">
+        <div class="text">morgs</div>
+      </div>
+    </div>
+
+    <div class="ground"></div>
+  </div>
+
+  <script>
+    const scene = document.getElementById('scene');
+    const flower = document.getElementById('flower');
+    const toggle = document.getElementById('toggle');
+
+    function toggleOpen(){
+      scene.classList.toggle('open');
+    }
+
+    // start opening automatically
+    setTimeout(() => scene.classList.add('open'), 300);
+
+    toggle.addEventListener('click', toggleOpen);
+    flower.addEventListener('click', toggleOpen);
+  </script>
+</body>
+</html>
